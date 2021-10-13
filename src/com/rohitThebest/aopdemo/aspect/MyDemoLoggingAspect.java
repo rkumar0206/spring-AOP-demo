@@ -1,9 +1,13 @@
 package com.rohitThebest.aopdemo.aspect;
 
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
+import com.rohitThebest.aopdemo.Account;
 
 /*
  * @Aspect:  This is a module which has a set of APIs providing 
@@ -28,9 +32,31 @@ public class MyDemoLoggingAspect {
 	 * method execution.
 	 */
 	@Before("com.rohitThebest.aopdemo.aspect.AOPExpressions.forDaoPackageNotGetterSetter()")
-	public void beforeAddAccountAdvice() {
+	public void beforeAddAccountAdvice(JoinPoint joinPoint) {
 
 		System.out.println("\n=====>>> Executing @Before advice : MyDemoLoggingAspect");
+
+		// display the method signature
+		MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+
+		System.out.println("Method: " + methodSignature);
+
+		// display method arguments
+		Object[] args = joinPoint.getArgs();
+
+		for (Object tempArg : args) {
+
+			System.out.println(tempArg);
+
+			if (tempArg instanceof Account) {
+
+				// downcast and print Account specific stuff
+				Account account = (Account) tempArg;
+
+				System.out.println("account name : " + account.getName());
+				System.out.println("account level : " + account.getLevel());
+			}
+		}
 	}
 
 	/*
