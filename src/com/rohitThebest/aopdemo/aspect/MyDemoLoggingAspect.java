@@ -1,6 +1,9 @@
 package com.rohitThebest.aopdemo.aspect;
 
+import java.util.List;
+
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -25,6 +28,42 @@ import com.rohitThebest.aopdemo.Account;
 @Order(2)
 public class MyDemoLoggingAspect {
 
+	
+	/**
+	 * @AfterReturning : Advice to be executed after a join point completes 
+	 * normally: for example, if a method returns without throwing an exception.
+	 */
+	// add new method for @AfterReturning on the findAccounts method
+	@AfterReturning(
+			pointcut = "execution(* com.rohitThebest.aopdemo.dao.AccountDAO.findAccounts(..))",
+			returning = "result")
+	public void afterReturningFindAccountsAdvice(
+			JoinPoint joinPoint, List<Account> result) {
+		
+		
+		// print out which method we are advising on
+		String method = joinPoint.getSignature().toShortString();
+		System.out.println("\n======> Executing @AfterReturning on method: " + method);
+		
+		// print out the results of the method call
+		System.out.println("\n====> result is: " + result);
+		
+		
+		// let's post-process the data and modify it
+		
+		// convert the account names to upper-case
+		for(Account tempAccount : result) {
+			
+			String upperCaseName = tempAccount.getName().toUpperCase();
+			
+			tempAccount.setName(upperCaseName);
+		}
+		
+		System.out.println("\n====> result is: " + result);
+	}
+	
+	
+	
 	// this is where we add all of our related advices for logging
 
 	/*
