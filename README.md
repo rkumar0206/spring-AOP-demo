@@ -400,3 +400,130 @@
 - We use JoinPoint as argument in advice.
 - We get the MethodSignature using the *joinPoint.getSignature()* and downcast it to the MethodSignature type.
 - For getting the values of arguument list of the method we can use *joinPoint.getArgs()*.
+
+---
+
+### Now Let's have a look on @AfterReturning()
+
+- As defined above this advice is executed after the method has complted it's execution successfully without throwing any exception.
+
+#### STEP 1 : Add method called *findAccount()* in AccountDAO.java which will return a list of Account type.
+
+##### AccountDAO.java
+
+	public List<Account> findAccounts() {
+	
+		List<Account> myAccounts = new ArrayList<>();
+	
+		Account account1 = new Account("Rohit", "Platinum");
+		Account account2 = new Account("Mohit", "Silver");
+		Account account3 = new Account("Sagar", "Gold");
+	
+		myAccounts.add(account1);
+		myAccounts.add(account2);
+		myAccounts.add(account3);
+	
+		return myAccounts;
+		}
+
+#### STEP 2 : Modify one of the aspects, Let's modify the MyDemoLoggingAspect and add a method with @AfterReturning annotation
+
+##### MyDemoLoggingAspect.java
+
+	/**
+	 * @AfterReturning : Advice to be executed after a join point completes 
+	 * normally: for example, if a method returns without throwing an exception.
+	 */
+	// add new method for @AfterReturning on the findAccounts method
+	@AfterReturning(
+			pointcut = "execution(* com.rohitThebest.aopdemo.dao.AccountDAO.findAccounts(..))",
+			returning = "result")
+	public void afterReturningFindAccountsAdvice(
+			JoinPoint joinPoint, List<Account> result) {
+		
+		
+		// print out which method we are advising on
+		String method = joinPoint.getSignature().toShortString();
+		System.out.println("\n======> Executing @AfterReturning on method: " + method);
+		
+		// print out the results of the method call
+		System.out.println("\n====> result is: " + result);
+	}
+	
+- here the pointcut expression will match the method in AccountDAO with method name *findAccount*
+- **returning** : It is used for getting the result returnes by the method
+- Note : the name provided in the parameter for return should exactly match with returning i.e. *result*, this should be same as in returning
+
+#### STEP 3 : Finally run the main app
+
+##### AfterReturningDemoApp.java
+
+package com.rohitThebest.aopdemo;
+
+import java.util.List;
+
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import com.rohitThebest.aopdemo.dao.AccountDAO;
+
+public class AfterReturningDemoApp {
+
+       	public static void main(String[] args) {
+       
+       		// read spring config java class
+       		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(DemoConfig.class);
+       
+       		// get the bean from spring container
+       		AccountDAO accountDao = context.getBean("accountDAO", AccountDAO.class);
+       
+       		List<Account> accounts = accountDao.findAccounts();
+       
+       		// display the accounts
+       
+       		System.out.println("\n\nMain program : AfterReturningDemoApp");
+       		System.out.println("-----");
+       
+       		System.out.println(accounts);
+       
+       		// close the context
+       		context.close();
+       	}
+       
+       }
+
+#### STEP 4 : Let's modify the data in between the main app and the target method
+
+- We can post-process or modify the data in the aspect with advice @AfterReturning and then the modified data will be returned in the main app
+- Modify the *afterReturningFindAccountsAdvice* method in AccountDAO
+
+##### AccountDAO.java
+
+	@AfterReturning(
+			pointcut = "execution(* com.rohitThebest.aopdemo.dao.AccountDAO.findAccounts(..))",
+			returning = "result")
+	public void afterReturningFindAccountsAdvice(
+			JoinPoint joinPoint, List<Account> result) {
+		
+		
+		// print out which method we are advising on
+		String method = joinPoint.getSignature().toShortString();
+		System.out.println("\n======> Executing @AfterReturning on method: " + method);
+		
+		// print out the results of the method call
+		System.out.println("\n====> result is: " + result);
+		
+		
+		// let's post-process the data and modify it
+		
+		// convert the account names to upper-case
+		for(Account tempAccount : result) {
+			
+			String upperCaseName = tempAccount.getName().toUpperCase();
+			
+			tempAccount.setName(upperCaseName);
+		}
+		
+		System.out.println("\n====> result is: " + result);
+	}
+- Here we are modifying the data by converting the name to uppercase.
+- Run the main app and we can see that the results are modified.
