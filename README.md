@@ -8,9 +8,12 @@
 
 ### Advice :
 - This is the actual action to be taken either before or after the method execution. This is an actual piece of code that is invoked during the program execution by Spring AOP framework.
-- There are two types of advice
-  1. @Before : It is an advice type which ensures that an advice runs before the method execution.
-  2. @After : It is an advice type which ensures that an advice runs after the method execution.
+- There are five types of advice
+  1. **@Before :** It is an advice type which ensures that an advice runs before the method execution.
+  2. **@After :** It is an advice type which ensures that an advice runs after the method execution.
+  3. **@AfterReturning :** Advice to be executed after a join point completes normally: for example, if a method returns without throwing an exception.
+  4. **@AfterThrowing :** Advice to be executed if a method exits by throwing an exception.
+  5. **@Around:** Advice that surrounds a join point such as a method invocation. This is the most powerful kind of advice. Around advice can perform custom behavior before and after the method invocation. It is also responsible for choosing whether to proceed to the join point or to shortcut the advised method execution by returning its own return value or throwing an exception.
   
   ---
   
@@ -349,3 +352,51 @@
 	- We can also use negative numbers for ordering. example : -43 , -23, 11
 	- If a same number is give to aspects, then spring will decide which one to run first.
 
+---
+
+#### JoinPoints
+- A point during the execution of a program, such as the execution of a method or the handling of an exception. In Spring AOP, a join point always represents a method execution. Join point information is available in advice bodies by declaring a parameter of type org.aspectj.lang.JoinPoint.
+- Here we will modify our one of the aspects and will try to see the JoinPoint in action.
+
+		@Aspect
+		@Component
+		@Order(2)
+		public class MyDemoLoggingAspect {
+		
+			// this is where we add all of our related advices for logging
+		
+			/*
+			 * @Before: It is an advice type which ensures that an advice runs before the
+			 * method execution.
+			 */
+			@Before("com.rohitThebest.aopdemo.aspect.AOPExpressions.forDaoPackageNotGetterSetter()")
+			public void beforeAddAccountAdvice(JoinPoint joinPoint) {
+		
+				System.out.println("\n=====>>> Executing @Before advice : MyDemoLoggingAspect");
+		
+				// display the method signature
+				MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+		
+				System.out.println("Method: " + methodSignature);
+		
+				// display method arguments
+				Object[] args = joinPoint.getArgs();
+		
+				for (Object tempArg : args) {
+		
+					System.out.println(tempArg);
+		
+					if (tempArg instanceof Account) {
+		
+						// downcast and print Account specific stuff
+						Account account = (Account) tempArg;
+		
+						System.out.println("account name : " + account.getName());
+						System.out.println("account level : " + account.getLevel());
+					}
+				}
+			}
+		}
+- We use JoinPoint as argument in advice.
+- We get the MethodSignature using the *joinPoint.getSignature()* and downcast it to the MethodSignature type.
+- For getting the values of arguument list of the method we can use *joinPoint.getArgs()*.
