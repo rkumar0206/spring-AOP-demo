@@ -527,3 +527,111 @@ public class AfterReturningDemoApp {
 	}
 - Here we are modifying the data by converting the name to uppercase.
 - Run the main app and we can see that the results are modified.
+
+### Using @AfterThrowing
+
+- Advice to be executed if a method exits by throwing an exception.
+- this advice can be used for
+  - perform audinting on the exception
+  - Log the exception
+  - Notify team members via email
+  - Encapsulate this functionality in AOP aspect for easy reuse
+
+#### STEP 1 : Modify the findAccounts() method in AccountDAO.java
+
+##### AccountDAO.java
+
+	public List<Account> findAccounts(boolean tripWire) {
+		
+		// simulate an exception
+		
+		if (tripWire) {
+			
+			throw new RuntimeException("No soup for you!!!");
+		}
+		
+		List<Account> myAccounts = new ArrayList<>();
+
+		Account account1 = new Account("Rohit", "Platinum");
+		Account account2 = new Account("Mohit", "Silver");
+		Account account3 = new Account("Sagar", "Gold");
+
+		myAccounts.add(account1);
+		myAccounts.add(account2);
+		myAccounts.add(account3);
+
+		return myAccounts;
+	}
+- here if the boolean value *tripWire_* will be true then we will throw an exception
+
+#### STEP 2 : Adding a method with annotation @AfterThrowing() in MyDemoLoggingAspect.java
+
+##### MyDemoLoggingAspect.java
+
+	@AfterThrowing(
+		pointcut = "execution(* com.rohitThebest.aopdemo.dao.AccountDAO.findAccounts(..))",
+		throwing = "theExec"
+			)
+	public void afterThrowingFindAccountAdvice(
+			JoinPoint joinPoint, Throwable theExec
+			) {
+		
+		
+		// print out which method we are advising on
+		String method = joinPoint.getSignature().toShortString();
+		System.out.println("\n======> Executing @AfterThrowing on method: " + method);
+
+		// log the exception
+		System.out.println("\n======> The exeption is: " + theExec);
+	}
+- here the pointcut expression will run advice on findAccount() method in AccountDAO.java
+- *throwing* : this is used for catching the exception.
+- The  @AfterThrowing() *throwing* parameter value shuld be exactly same as the Throwable parameter in *afterThrowingFindAccountAdvice* method.
+
+#### STEP 3 : Run the app in AfterThrowingDemoApp.java
+
+	package com.rohitThebest.aopdemo;
+	
+	import java.util.List;
+	
+	import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+	
+	import com.rohitThebest.aopdemo.dao.AccountDAO;
+	
+	public class AfterThrowingDemoApp {
+	
+		public static void main(String[] args) {
+	
+			// read spring config java class
+			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(DemoConfig.class);
+	
+			// get the bean from spring container
+			AccountDAO accountDao = context.getBean("accountDAO", AccountDAO.class);
+	
+			List<Account> accounts = null;
+			
+			try {
+				
+				// add a boolean flag to simulate exception
+				boolean tripWire = true;
+				accounts = accountDao.findAccounts(tripWire);
+				
+			}catch (Exception e) {
+				
+				System.out.println("\n\nMain program... caught exeption: " + e);
+			}
+	
+			// display the accounts
+	
+			System.out.println("\n\nMain program : AfterThrowingDemoApp");
+			System.out.println("-----");
+	
+			System.out.println(accounts);
+	
+			// close the context
+			context.close();
+		}
+	
+	}
+
+- After running the program we can easily see the logged message from the @AfterThrowing() advice
