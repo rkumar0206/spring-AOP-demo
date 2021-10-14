@@ -1,8 +1,14 @@
 package com.rohitThebest.aopdemo.aspect;
 
+/*
+ * For better understanding of this project go to :
+ * https://github.com/rkumar0206/spring-AOP-demo
+ */
+
 import java.util.List;
 
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
@@ -30,6 +36,16 @@ import com.rohitThebest.aopdemo.Account;
 public class MyDemoLoggingAspect {
 
 	
+	@After("execution(* com.rohitThebest.aopdemo.dao.AccountDAO.findAccounts(..))")
+	public void afterFinallyFindAccountAdvice(JoinPoint joinPoint) {
+		
+		// print out which method we are advising on
+		String method = joinPoint.getSignature().toShortString();
+		System.out.println("\n======> Executing @After (finally) on method: " + method);
+
+		
+	}
+	
 	// Advice to be executed if a method exits by throwing an exception.
 	@AfterThrowing(
 		pointcut = "execution(* com.rohitThebest.aopdemo.dao.AccountDAO.findAccounts(..))",
@@ -48,8 +64,7 @@ public class MyDemoLoggingAspect {
 		System.out.println("\n======> The exeption is: " + theExec);
 	}
 	
-	
-	
+
 
 	/**
 	 * @AfterReturning : Advice to be executed after a join point completes 

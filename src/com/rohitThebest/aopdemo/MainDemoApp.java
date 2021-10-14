@@ -5,6 +5,11 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import com.rohitThebest.aopdemo.dao.AccountDAO;
 import com.rohitThebest.aopdemo.dao.MembershipDAO;
 
+/*
+ * For better understanding of this project go to :
+ * https://github.com/rkumar0206/spring-AOP-demo
+ */
+
 public class MainDemoApp {
 
 	public static void main(String[] args) {

@@ -11,7 +11,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import com.rohitThebest.aopdemo.dao.AccountDAO;
 
-public class AfterThrowingDemoApp {
+public class AfterFinallyDemoApp {
 
 	public static void main(String[] args) {
 
@@ -35,8 +35,7 @@ public class AfterThrowingDemoApp {
 		}
 
 		// display the accounts
-
-		System.out.println("\n\nMain program : AfterThrowingDemoApp");
+		System.out.println("\nMain program : AfterFinallyDemoApp");
 		System.out.println("-----");
 
 		System.out.println(accounts);
