@@ -458,38 +458,38 @@
 
 ##### AfterReturningDemoApp.java
 
-package com.rohitThebest.aopdemo;
-
-import java.util.List;
-
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-import com.rohitThebest.aopdemo.dao.AccountDAO;
-
-public class AfterReturningDemoApp {
-
-       	public static void main(String[] args) {
-       
-       		// read spring config java class
-       		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(DemoConfig.class);
-       
-       		// get the bean from spring container
-       		AccountDAO accountDao = context.getBean("accountDAO", AccountDAO.class);
-       
-       		List<Account> accounts = accountDao.findAccounts();
-       
-       		// display the accounts
-       
-       		System.out.println("\n\nMain program : AfterReturningDemoApp");
-       		System.out.println("-----");
-       
-       		System.out.println(accounts);
-       
-       		// close the context
-       		context.close();
-       	}
-       
-       }
+	package com.rohitThebest.aopdemo;
+	
+	import java.util.List;
+	
+	import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+	
+	import com.rohitThebest.aopdemo.dao.AccountDAO;
+	
+	public class AfterReturningDemoApp {
+	
+	       	public static void main(String[] args) {
+	       
+	       		// read spring config java class
+	       		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(DemoConfig.class);
+	       
+	       		// get the bean from spring container
+	       		AccountDAO accountDao = context.getBean("accountDAO", AccountDAO.class);
+	       
+	       		List<Account> accounts = accountDao.findAccounts();
+	       
+	       		// display the accounts
+	       
+	       		System.out.println("\n\nMain program : AfterReturningDemoApp");
+	       		System.out.println("-----");
+	       
+	       		System.out.println(accounts);
+	       
+	       		// close the context
+	       		context.close();
+	       	}
+	       
+	}
 
 #### STEP 4 : Let's modify the data in between the main app and the target method
 
@@ -635,3 +635,79 @@ public class AfterReturningDemoApp {
 	}
 
 - After running the program we can easily see the logged message from the @AfterThrowing() advice
+
+### Using @After (finally)
+
+- It is an advice type which ensures that an advice runs after the method execution, even after the exception occurs, that's why we can say it is like a finally block.
+
+#### STEP 1 : Adding advice in MyDemoLoggingAspect.java
+
+##### MyDemoLoggingAspect.java
+
+	@After("execution(* com.rohitThebest.aopdemo.dao.AccountDAO.findAccounts(..))")
+	public void afterFinallyFindAccountAdvice(JoinPoint joinPoint) {
+		
+		// print out which method we are advising on
+		String method = joinPoint.getSignature().toShortString();
+		System.out.println("\n======> Executing @After (finally) on method: " + method);
+
+		
+	}
+
+#### STEP 2 : Don't change the findAccount() method on AccountDAO.java
+
+#### STEP 3 : Run the app in AfterFinallyDemoApp.java
+
+##### AfterFinallyDemoApp.java
+
+	package com.rohitThebest.aopdemo;
+	
+	/*
+	 * For better understanding of this project go to :
+	 * https://github.com/rkumar0206/spring-AOP-demo
+	 */
+	
+	import java.util.List;
+	
+	import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+	
+	import com.rohitThebest.aopdemo.dao.AccountDAO;
+	
+	public class AfterFinallyDemoApp {
+	
+		public static void main(String[] args) {
+	
+			// read spring config java class
+			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(DemoConfig.class);
+	
+			// get the bean from spring container
+			AccountDAO accountDao = context.getBean("accountDAO", AccountDAO.class);
+	
+			List<Account> accounts = null;
+			
+			try {
+				
+				// add a boolean flag to simulate exception
+				boolean tripWire = true;
+				accounts = accountDao.findAccounts(tripWire);
+				
+			}catch (Exception e) {
+				
+				System.out.println("\n\nMain program... caught exeption: " + e);
+			}
+	
+			// display the accounts
+			System.out.println("\nMain program : AfterFinallyDemoApp");
+			System.out.println("-----");
+	
+			System.out.println(accounts);
+	
+			// close the context
+			context.close();
+		}
+	
+	}
+
+- change the value of tripWire to false and then true and observe the output
+- the @After() will run in any situation irrespective of the exception
+
