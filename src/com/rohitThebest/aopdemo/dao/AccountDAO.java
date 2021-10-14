@@ -13,21 +13,45 @@ public class AccountDAO {
 	private String name;
 	private String serviceCode;
 
-		public List<Account> findAccounts() {
-	
-			List<Account> myAccounts = new ArrayList<>();
-	
-			Account account1 = new Account("Rohit", "Platinum");
-			Account account2 = new Account("Mohit", "Silver");
-			Account account3 = new Account("Sagar", "Gold");
-	
-			myAccounts.add(account1);
-			myAccounts.add(account2);
-			myAccounts.add(account3);
-	
-			return myAccounts;
-		}
+//		public List<Account> findAccounts() {
+//	
+//			List<Account> myAccounts = new ArrayList<>();
+//	
+//			Account account1 = new Account("Rohit", "Platinum");
+//			Account account2 = new Account("Mohit", "Silver");
+//			Account account3 = new Account("Sagar", "Gold");
+//	
+//			myAccounts.add(account1);
+//			myAccounts.add(account2);
+//			myAccounts.add(account3);
+//	
+//			return myAccounts;
+//		}
 
+	
+	public List<Account> findAccounts(boolean tripWire) {
+		
+		// simulate an exception
+		
+		if (tripWire) {
+			
+			throw new RuntimeException("No soup for you!!!");
+		}
+		
+		List<Account> myAccounts = new ArrayList<>();
+
+		Account account1 = new Account("Rohit", "Platinum");
+		Account account2 = new Account("Mohit", "Silver");
+		Account account3 = new Account("Sagar", "Gold");
+
+		myAccounts.add(account1);
+		myAccounts.add(account2);
+		myAccounts.add(account3);
+
+		return myAccounts;
+	}
+
+	
 	public String getName() {
 
 		System.out.println(getClass() + ": getName()");

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -29,6 +30,27 @@ import com.rohitThebest.aopdemo.Account;
 public class MyDemoLoggingAspect {
 
 	
+	// Advice to be executed if a method exits by throwing an exception.
+	@AfterThrowing(
+		pointcut = "execution(* com.rohitThebest.aopdemo.dao.AccountDAO.findAccounts(..))",
+		throwing = "theExec"
+			)
+	public void afterThrowingFindAccountAdvice(
+			JoinPoint joinPoint, Throwable theExec
+			) {
+		
+		
+		// print out which method we are advising on
+		String method = joinPoint.getSignature().toShortString();
+		System.out.println("\n======> Executing @AfterThrowing on method: " + method);
+
+		// log the exception
+		System.out.println("\n======> The exeption is: " + theExec);
+	}
+	
+	
+	
+
 	/**
 	 * @AfterReturning : Advice to be executed after a join point completes 
 	 * normally: for example, if a method returns without throwing an exception.
