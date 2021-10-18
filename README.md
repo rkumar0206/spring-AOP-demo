@@ -948,3 +948,47 @@ To simulate this let us write a code
 
 #### Output : 
 ![image](https://user-images.githubusercontent.com/63965898/137724406-b3fa1a09-3f79-441f-9860-f50a17a07a15.png)
+
+### Rethrowing the exception from @Around() advice
+
+- Likewise we handled the exception in *@Around* advice, we can also rethrow the exception back to the main app.
+- We just need to modify our @Around() advice
+
+		@Around("execution (* com.rohitThebest.aopdemo.service.*.getFortune(..))")
+		public Object aroundGetFortune(
+				ProceedingJoinPoint proceedingJoinPoint) throws Throwable
+		{
+			
+			// print out which method we are advising on
+			String method = proceedingJoinPoint.getSignature().toShortString();
+			System.out.println("\n======> Executing @Around on method: " + method);
+	
+			// get begin timestamp
+			long begin = System.currentTimeMillis();
+			
+			// execute the method
+			Object result = null;
+			
+			try {
+				
+				result = proceedingJoinPoint.proceed();
+			} catch (Exception e) {
+	
+				// log the exception
+				System.out.println("Exception : " + e.getMessage());
+				
+				// re-throw the exception
+				throw e;
+			}
+			
+			// get end timestamp
+			long end = System.currentTimeMillis();
+			
+			// compute duration and display
+			long duration = end - begin;
+			System.out.println("\n====> Duration: " + duration / 1000.0 + " seconds");
+			
+			return result;
+		}
+
+- No if we run our main app, exception will be thrown in the main app and we can decide how to handle it.
