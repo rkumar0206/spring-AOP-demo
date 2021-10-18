@@ -709,5 +709,5 @@
 	}
 
 - change the value of tripWire to false and then true and observe the output
-- the @After() will run in any situation irrespective of the exception
+- the **@After()** will run in any situation irrespective of the exception
 
