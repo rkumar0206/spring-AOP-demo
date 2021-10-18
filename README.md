@@ -711,3 +711,106 @@
 - change the value of tripWire to false and then true and observe the output
 - the **@After()** will run in any situation irrespective of the exception
 
+
+### Using @Around() 
+
+- Advice that surrounds a join point such as a method invocation. This is the most powerful kind of advice. Around advice can perform custom behavior before and after the method invocation. It is also responsible for choosing whether to proceed to the join point or to shortcut the advised method execution by returning its own return value or throwing an exception.
+
+#### STEP 1 : Make service class
+
+##### TrafficFortuneService.java
+	package com.rohitThebest.aopdemo.service;
+	
+	import java.util.concurrent.TimeUnit;
+	
+	import org.springframework.stereotype.Component;
+	
+	@Component
+	public class TrafficFortuneService {
+	
+		public String getFortune() {
+			
+			// simulate a delay
+			
+			try {
+	
+				TimeUnit.SECONDS.sleep(5);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			// return a fortune
+			
+			return "Expect heavy traffic today";
+		}
+	}
+
+- This service will just simulate a delay and will return a String.
+
+#### STEP 2 : Making advice with *@Around()*
+##### MyDemoLoggingAspect.java
+
+	@Around("execution (* com.rohitThebest.aopdemo.service.*.getFortune(..))")
+	public Object aroundGetFortune(
+			ProceedingJoinPoint proceedingJoinPoint) throws Throwable
+	{
+		
+		// print out which method we are advising on
+		String method = proceedingJoinPoint.getSignature().toShortString();
+		System.out.println("\n======> Executing @Around on method: " + method);
+
+		// get begin timestamp
+		long begin = System.currentTimeMillis();
+		
+		// execute the method
+		Object result = proceedingJoinPoint.proceed();
+		
+		// get end timestamp
+		long end = System.currentTimeMillis();
+		
+		// compute duration and display
+		long duration = end - begin;
+		System.out.println("\n====> Duration: " + duration / 1000.0 + " seconds");
+		
+		return result;
+	}
+	
+- here we are calculating how must time is taken by the *getFortune()* method and displaying the duration
+- after that returning the object to the target
+
+#### STEP 3 : Running the main app
+
+##### AroundDemoApp.java
+
+	package com.rohitThebest.aopdemo;
+
+	import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+	import com.rohitThebest.aopdemo.service.TrafficFortuneService;
+	
+	public class AroundDemoApp {
+	
+		public static void main(String[] args) {
+	
+			// read spring config java class
+			AnnotationConfigApplicationContext context =
+					new AnnotationConfigApplicationContext(DemoConfig.class);
+	
+			// get the bean from spring container
+			TrafficFortuneService fortuneService = 
+					context.getBean("trafficFortuneService", TrafficFortuneService.class);
+	
+			
+			System.out.println("\nMain program: AroundDemoApp");
+			
+			System.out.println("Calling getFortune()");
+			
+			String data = fortuneService.getFortune();
+			
+			System.out.println("\nMy Fortune is : " + data);
+			
+			System.out.println("Finished");
+			// close the context
+			context.close();
+		}
+	}
+
