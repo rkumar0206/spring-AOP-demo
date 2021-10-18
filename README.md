@@ -817,3 +817,134 @@
 #### Output :
 ![image](https://user-images.githubusercontent.com/63965898/137719894-e24d77eb-2f62-4120-a24e-d208ea82ae9f.png)
 
+### Handling Exception in *@Around()* advice
+
+- One of the major feature of the @Around is that, we can handle exception in **@Around()** advice without the target app knowing about this.
+
+To simulate this let us write a code
+
+#### STEP 1 : Add a method in TrafficFortuneService.java
+
+##### TrafficFortuneService.java
+
+	package com.rohitThebest.aopdemo.service;
+	
+	import java.util.concurrent.TimeUnit;
+	
+	import org.springframework.stereotype.Component;
+	
+	@Component
+	public class TrafficFortuneService {
+	
+		public String getFortune() {
+			
+			// simulate a delay
+			
+			try {
+	
+				TimeUnit.SECONDS.sleep(5);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			// return a fortune
+			
+			return "Expect heavy traffic today";
+		}
+	
+		public String getFortune(boolean tripWire) {
+	
+			if (tripWire) {
+				throw new RuntimeException("Major accident! Highway is closed");
+			}
+			
+			return getFortune();
+		}
+	}
+
+- Here the getFortune(boolean tripWire) method will throw an exception when the value of tripWire is true.
+- We will catch this exception in **@Around()** advice and will pass our custom value to the target app.
+
+#### STEP 2 : Modify the aroundGetFortune() method
+
+##### MyDemoLoggingAspect.java
+
+	@Around("execution (* com.rohitThebest.aopdemo.service.*.getFortune(..))")
+	public Object aroundGetFortune(
+			ProceedingJoinPoint proceedingJoinPoint) throws Throwable
+	{
+		
+		// print out which method we are advising on
+		String method = proceedingJoinPoint.getSignature().toShortString();
+		System.out.println("\n======> Executing @Around on method: " + method);
+
+		// get begin timestamp
+		long begin = System.currentTimeMillis();
+		
+		// execute the method
+		Object result = null;
+		
+		try {
+			
+			result = proceedingJoinPoint.proceed();
+		} catch (Exception e) {
+
+			// log the exception
+			System.out.println(e.getMessage());
+			
+			// give user a custom message
+			result = "Major accident!!, But no worries your private helicopter is on the way.";
+		}
+		
+		// get end timestamp
+		long end = System.currentTimeMillis();
+		
+		// compute duration and display
+		long duration = end - begin;
+		System.out.println("\n====> Duration: " + duration / 1000.0 + " seconds");
+		
+		return result;
+	}
+
+- here we are using try catch block and when the exception is catched, we are just setting a custom value to the result and then returning it to the target app.
+
+#### STEP 3 : Run the Main app
+
+##### AroundHandleExceptionDemoApp.java
+
+	package com.rohitThebest.aopdemo;
+	
+	import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+	import com.rohitThebest.aopdemo.service.TrafficFortuneService;
+	
+	public class AroundHandleExceptionDemoApp {
+	
+		public static void main(String[] args) {
+	
+			// read spring config java class
+			AnnotationConfigApplicationContext context =
+					new AnnotationConfigApplicationContext(DemoConfig.class);
+	
+			// get the bean from spring container
+			TrafficFortuneService fortuneService = 
+					context.getBean("trafficFortuneService", TrafficFortuneService.class);
+	
+			
+			System.out.println("\nMain program: AroundHandleExceptionDemoApp");
+			
+			System.out.println("Calling getFortune()");
+			
+			boolean tripWire = true;
+			String data = fortuneService.getFortune(tripWire);
+			
+			System.out.println("\nMy Fortune is : " + data);
+			
+			System.out.println("Finished");
+			// close the context
+			context.close();
+		}
+	
+	}
+
+#### Output : 
+![image](https://user-images.githubusercontent.com/63965898/137724406-b3fa1a09-3f79-441f-9860-f50a17a07a15.png)
