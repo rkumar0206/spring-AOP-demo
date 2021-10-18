@@ -991,4 +991,4 @@ To simulate this let us write a code
 			return result;
 		}
 
-- No if we run our main app, exception will be thrown in the main app and we can decide how to handle it.
+- Now if we run our main app, exception will be thrown in the main app and we can decide how to handle it.
